@@ -28,6 +28,7 @@
 #define WEBCONFIG_PARAM_RFC_ENABLE          "Device.X_RDK_WebConfig.RfcEnable"
 #define WEBCONFIG_PARAM_URL                 "Device.X_RDK_WebConfig.URL"
 #define WEBCONFIG_PARAM_FORCE_SYNC   	    "Device.X_RDK_WebConfig.ForceSync"
+#define WEBCONFIG_PARAM_Data		    "Device.X_RDK_WebConfig.Data"
 
 static char *paramRFCEnable = "eRT.com.cisco.spvtg.ccsp.webpa.Device.X_RDK_WebConfig.RfcEnable";
 
@@ -147,6 +148,26 @@ int Get_Webconfig_URL( char *pString)
         return 1;
 }
 
+int Get_Webconfig_Data( )
+{
+    PCOSA_DATAMODEL_WEBCONFIG            pMyObject           = (PCOSA_DATAMODEL_WEBCONFIG)g_pCosaBEManager->hWebConfig;
+    WebConfigLog("-------- %s ----- Get_Webconfig_Data-- ---\n",__FUNCTION__);
+
+        if((pMyObject->name != NULL) && (pMyObject->version != NULL) && (pMyObject->version != status) )
+        {
+        	WebConfigLog("pMyObject->Data %s\n", pMyObject->Data);
+                WebConfigLog("%s ----- updating pString ------\n",__FUNCTION__);
+		
+	 }
+         else
+         {
+         WebConfigLog("psm_get failed ret %d for parameter %s\n", retPsmGet, WEBCONFIG_PARAM_Data);
+         return 0;
+         }
+        WebConfigLog("-------- %s ----- Exit ------\n",__FUNCTION__);
+        return 1;
+}
+
 int Set_Webconfig_URL( char *pString)
 {
     PCOSA_DATAMODEL_WEBCONFIG            pMyObject           = (PCOSA_DATAMODEL_WEBCONFIG)g_pCosaBEManager->hWebConfig;
@@ -170,32 +191,6 @@ int Set_Webconfig_URL( char *pString)
 
         WebConfigLog("-------- %s ----- Exit ------\n",__FUNCTION__);
         return 1;
-}
-
-int Get_Webconfig_Blob( char *pString)
-{
-    PCOSA_DATAMODEL_WEBCONFIG            pMyObject           = (PCOSA_DATAMODEL_WEBCONFIG)g_pCosaBEManager->hWebConfig;
-    WebConfigLog("-------- %s ----- Enter-- ---\n",__FUNCTION__);
-
-	//WebConfigLog("pMyObject->DBBlobData %s,*pString=%s\n", pMyObject->DBBlobData,*pString);
-
-        pMyObject->DBBlobData = NULL;
-        pMyObject->DBBlobData = get_DB_BLOB_base64(&pMyObject->DBBlobLength);
-        writeBlobToFile(WEBCFG_BLOB_PATH, pMyObject->DBBlobData);
-        WebConfigLog("pMyObject->DBBlobLength %zu\n",pMyObject->DBBlobLength);
-        readBlobFromFile(WEBCFG_BLOB_PATH);
-	pString=(char*) malloc(sizeof(char *)*(pMyObject->DBBlobLength));
-        AnscCopyString( pString,pMyObject->DBBlobData );
-        if (pString != NULL)
-        {
-            WebConfigLog("pMyObject->DBBlobLength %zu, pString %s, pMyObject->DBBlobData=%s\n",pMyObject->DBBlobLength,pString,pMyObject->DBBlobData);
-            return 1;
-        }
-        else
-        {
-            WebConfigLog("Failed to get b64 encoded data\n");
-            return 0;
-        }
 }
 
 
@@ -346,6 +341,27 @@ int getWebConfigParameterValues(char **parameterNames, int paramCount, int *val_
 					matchFound = 0;
 				}
                             }
+						 else if((strcmp(parameterNames[i], WEBCONFIG_PARAM_Data) == 0) && (RFC_ENABLE == true))	
+				{
+				char* b64buffer =  NULL;
+		    		WebConfigLog("B4 Get_Webconfig_Data\n");
+				Get_Webconfig_Data();
+		    		Get_Webconfig_Blob( b64buffer);
+		    		if( (b64buffer != NULL) && strlen(b64buffer) >0 )
+				{
+		   	WebConfigLog("Webpa get : Datafetched %s\n", b64buffer);
+		                        paramVal[k]->parameterName = strndup(WEBCONFIG_PARAM_Data, MAX_PARAMETERNAME_LEN);
+					paramVal[k]->parameterValue = strndup(valuestr,MAX_PARAMETERVALUE_LEN);
+		                        paramVal[k]->type = ccsp_string;
+		                        k++;
+					WebConfigLog("Webpa get : URL done\n");
+				
+     				}
+     				else
+     				{
+        				WebConfigLog("Webpa get : Data not found\n");
+    				 }    
+			}
                             else
                             {
                                 WAL_FREE(paramVal[k]);
