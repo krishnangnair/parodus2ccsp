@@ -278,7 +278,7 @@ static void *WALInit(void *status)
 	    }
 		else
 		{
-		    strncpy(paramName,objectList[i],sizeof(paramName));
+		    walStrncpy(paramName,objectList[i],sizeof(paramName));
 		    ret = CcspBaseIf_discComponentSupportingNamespace(bus_handle,dst_pathname_cr, paramName,l_Subsystem, &ppComponents, &size);
 			
 		    if (ret == CCSP_SUCCESS)
@@ -1011,7 +1011,7 @@ static void getObjectName(char *str, char *objectName, int objectLevel)
         walStrncpy(localStr,str,sizeof(localStr));
         int count = 1,len;
 
-        if(localStr)
+        if(localStr[0] != '\0')
         {	
                 tmpStr = strchr(localStr,'.');
                 while (tmpStr != NULL)
@@ -1387,6 +1387,7 @@ WDMP_STATUS check_ethernet_wan_status()
             WAL_FREE(status);
             return WDMP_SUCCESS;
         }
+		WAL_FREE(status);
     }
     return WDMP_FAILURE;
 }
