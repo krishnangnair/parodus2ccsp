@@ -322,7 +322,7 @@ static void *WALInit(void *status)
 
 	for(i = 0; i < len; i++)
 	{
-		strncpy(paramName,subObjectList[i],sizeof(paramName));
+		walStrncpy(paramName,subObjectList[i],sizeof(paramName));
 		ret = CcspBaseIf_discComponentSupportingNamespace(bus_handle,
 					dst_pathname_cr, paramName, l_Subsystem, &ppComponents, &size);
 			
@@ -384,7 +384,7 @@ int getComponentDetails(char *parameterName,char ***compName,char ***dbusPath, i
 	strncpy(l_Subsystem, "eRT.",sizeof(l_Subsystem));
 #endif
 	snprintf(dst_pathname_cr, sizeof(dst_pathname_cr),"%s%s", l_Subsystem, CCSP_DBUS_INTERFACE_CR);
-	strncpy(tempParamName, parameterName,sizeof(tempParamName));
+	walStrncpy(tempParamName, parameterName,sizeof(tempParamName));
 	WalPrint("======= start of getComponentDetails ========\n");
 	if(cachingStatus == 1)
 	{
@@ -1008,7 +1008,7 @@ static void getObjectName(char *str, char *objectName, int objectLevel)
 {
         char *tmpStr;
         char localStr[MAX_PARAMETERNAME_LEN]={'\0'};
-        strncpy(localStr,str,sizeof(localStr));
+        walStrncpy(localStr,str,sizeof(localStr));
         int count = 1,len;
 
         if(localStr)
@@ -1257,7 +1257,7 @@ static void retryFailedComponentCaching()
 
 		for(i = 0; i < count ; i++)
 		{
-			strncpy(paramName,failedCompList[i],sizeof(paramName));
+			walStrncpy(paramName,failedCompList[i],sizeof(paramName));
 			WalPrint("Retrying for component %s\n",paramName);
 			retryCount = 1;
 			do
@@ -1360,6 +1360,7 @@ WDMP_STATUS check_ethernet_wan_status()
 {
     char *status = NULL;
     char isEthEnabled[64]={'\0'};
+    int i = 0;	
 #ifdef RDKB_BUILD
     if(0 == syscfg_init())
     {
@@ -1374,7 +1375,8 @@ WDMP_STATUS check_ethernet_wan_status()
     else
 #endif
     {
-        waitForComponentReady(RDKB_ETHAGENT_COMPONENT_NAME,RDKB_ETHAGENT_DBUS_PATH);
+        i = waitForComponentReady(RDKB_ETHAGENT_COMPONENT_NAME,RDKB_ETHAGENT_DBUS_PATH);
+	WalPrint("waiting for component ready %d ,%d\n",i,waitForComponentReady);
         status = getParameterValue(ETH_WAN_STATUS_PARAM);
         if(status != NULL && strncmp(status, "true", strlen("true")) == 0)
         {

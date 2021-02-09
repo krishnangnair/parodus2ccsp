@@ -42,7 +42,7 @@ void replaceTable(char *objectName,TableData * list,unsigned int paramcount,WDMP
     TableData * addList = NULL;
     char paramName[MAX_PARAMETERNAME_LEN] = {'\0'};
     WalPrint("<==========Start of replaceTable ========>\n ");
-    strncpy(paramName,objectName,sizeof(paramName));
+    walStrncpy(paramName,objectName,sizeof(paramName));
     WalPrint("paramName before Mapping : %s\n",paramName);
     // Index mapping 
     retIndex=IndexMpa_WEBPAtoCPE(paramName);
@@ -160,7 +160,8 @@ static int cacheTableData(char *objectName,int paramcount,char ***rowList,int *n
     if (ret == CCSP_SUCCESS && size == 1)
     {
         WalInfo("parameterName: %s, CompName : %s, dbusPath : %s\n", objectName, ppComponents[0]->componentName, ppComponents[0]->dbusPath);
-        strncpy(paramName, objectName, sizeof(paramName));
+        walStrncpy(paramName, objectName, sizeof(paramName));
+	WalPrint("cacheTableData paramName %s\n",paramName);
         parameterNames[0] = p;
         ret = CcspBaseIf_getParameterValues(bus_handle,	ppComponents[0]->componentName, ppComponents[0]->dbusPath,  parameterNames,	1, &val_size, &parameterval);
         WalPrint("ret = %d val_size = %d\n",ret,val_size);
@@ -264,7 +265,8 @@ static int addNewData(char *objectName,TableData * list,int paramcount)
     WalPrint("---------- Start of addNewData -----------\n");
     for(cnt =0; cnt < paramcount; cnt++)
     {				
-        strncpy(paramName,objectName,sizeof(paramName));
+        walStrncpy(paramName,objectName,sizeof(paramName));
+	WalPrint("addNewData paramName %s\n",paramName);
         retObject[cnt] = (char *)malloc(sizeof(char) * MAX_PARAMETERNAME_LEN);
         addRowTable(paramName,&list[cnt],&retObject[cnt],&addRet);
         WalPrint("addRet : %d\n",addRet);
@@ -312,7 +314,8 @@ static void addCachedData(char *objectName,TableData * addList,int rowCount)
     for(cnt =0; cnt < rowCount; cnt++)
     {
         retRows[cnt] = (char *)malloc(sizeof(char) * MAX_PARAMETERNAME_LEN);
-        strncpy(paramName,objectName,sizeof(paramName));
+        walStrncpy(paramName,objectName,sizeof(paramName));
+	WalPrint("addRowTable paramName %s\n",paramName);
         addRowTable(paramName,&addList[cnt],&retRows[cnt],&addRet);
         WalPrint("addRet : %d\n",addRet);
         if(addRet == WDMP_SUCCESS)
