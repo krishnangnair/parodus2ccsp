@@ -41,7 +41,7 @@
 #define WEBPA_LOG_PRINT                 2
 #define WalError(...)                   _WEBPA_LOG(WEBPA_LOG_ERROR, __VA_ARGS__)
 #define WalInfo(...)                    _WEBPA_LOG(WEBPA_LOG_INFO, __VA_ARGS__)
-#define WalPrint(...)                   _WEBPA_LOG(WEBPA_LOG_PRINT, __VA_ARGS__)
+#define WalPrint(...)                   _WEBPA_LOG(WEBPA_LOG_INFO, __VA_ARGS__)
 
 /**
  * @brief Set operations supported by WebPA.
