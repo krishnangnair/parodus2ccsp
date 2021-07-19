@@ -34,7 +34,7 @@
 
 #define NUM_WEBPA_ELEMENTS 3
 
-static rbusHandle_t rbus_handle;
+extern rbusHandle_t rbus_handle;
 
 static char* CMCVal = NULL ;
 static char* CIDVal = NULL ;

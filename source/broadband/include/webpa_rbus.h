@@ -21,6 +21,7 @@
 #define _WEBPA_RBUS_H_
 
 #include <stdio.h>
+#include <rbus/rbus.h>
 #include "webpa_adapter.h"
 #include <wdmp-c.h>
 #include <cimplog.h>
@@ -37,5 +38,7 @@
 bool isRbusEnabled();
 
 WDMP_STATUS webpaRbusInit(const char *pComponentName);
+
+rbusHandle_t get_global_rbus_handle(void);
 
 #endif
