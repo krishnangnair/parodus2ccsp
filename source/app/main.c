@@ -33,12 +33,8 @@ static void sig_handler(int sig);
 /*----------------------------------------------------------------------------*/
 #define     TotalParams   4
 rbusHandle_t rbus_handle;
-char const*     paramNames[TotalParams] = {
-    "Device.DeviceInfo.ModelName",
-    "Device.DeviceInfo.X_CISCO_COM_FirmwareName",
-    "Device.DeviceInfo.ProductClass",
-    "Device.DeviceInfo.SerialNumber"   
-};
+const char *params = "Device.DeviceInfo.";
+const char *params1 = "Device.Bridging.Bridge.";
 
 rbusHandle_t get_global_rbus_handle(void)
 {
@@ -48,9 +44,11 @@ rbusHandle_t get_global_rbus_handle(void)
 int main()
 {
         //int ret = -1;
-        int rc = 0;
-        int value = 0; 
-        int count =4;
+        int rc =0;
+        int props = NULL;
+        int next;
+        int actualCount = 0;
+        int actualValue;
 #ifdef INCLUDE_BREAKPAD
     breakpad_ExceptionHandler();
 #else
@@ -92,33 +90,29 @@ int main()
 	//CosaWebpaSyncDB();
 	WalInfo("Webpa banckend manager is in sync with DB\n");
 	rbusHandle_t webcfg_rbus_handle = get_global_rbus_handle();
-        for(count=0; count < TotalParams; count++)
-    	{
-         WalInfo("calling rbus get for [%s]\n", paramNames[count]);
-         rc = rbus_get(webcfg_rbus_handle, paramNames[count], &value);
-         WalInfo("rbus_get succeded  [%s] with  [%d]\n", paramNames[count], rc);
-         if(rc != RBUS_ERROR_SUCCESS)
+        rc = rbus_getExt(webcfg_rbus_handle, 1, &params, &actualCount, &props);
+        WalInfo("rbus_getExt\n");  
+        if(rc == RBUS_ERROR_SUCCESS)
         {
-            WalInfo("rbus_get failed for [%s] with error [%d]\n", paramNames[count], rc);
-            continue;
+          next = props;
+          while(next)
+          {
+            actualValue = rbusProperty_GetValue(next);
+            if(actualValue != NULL && rbusValue_GetType(actualValue) == RBUS_STRING)
+              WalInfo("val %s\n", rbusValue_GetString(actualValue, NULL));
+
+            //rbusProperty_fwrite(next, 1, stdout);
+            next =  rbusProperty_GetNext(next);
+          }
+          rbusProperty_Release(props);
         }
-	WalInfo("rbus_get succeded for [%s] with  [%s]\n", paramNames[count], value);
-        switch(count)
+        rc = rbus_getExt(webcfg_rbus_handle, 1, &params1, &actualCount, &props);
+        if(rc != RBUS_ERROR_SUCCESS)
         {
-            case 0:
-                WalInfo("Model name = [%s]\n", rbusValue_GetString(value, NULL));
-                break;
-            case 1:
-                WalInfo("The value is = [%s]\n", rbusValue_GetString(value, NULL));
-                break;
-            case 4:
-                WalInfo("The value is = [%s]\n", rbusValue_GetString(value, NULL));
-                break;
-            case 3:
-                WalInfo("The value is = [%s]\n", rbusValue_GetString(value, NULL));
-                break;
-        }
-}
+          WalInfo("rbus failed\n"); 
+          /*Invalid wildcard call*/
+          rc = RBUS_ERROR_SUCCESS;
+        }           
 	//initComponentCaching(ret);
 	// Initialize Apply WiFi Settings handler
 	//initApplyWiFiSettings();
